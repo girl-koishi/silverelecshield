@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="银龄电盾子女端监控中心：实时查看长辈家庭用电状态、异常提醒与老人居家活跃度。">
+  <title>子女端监控中心 | 银龄电盾</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="monitor">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="银龄电盾首页">
+        <span class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </span>
+        <span>
+          <span class="logo-name">银龄电盾</span>
+          <span class="logo-sub">Silver Shield Power</span>
+        </span>
+      </a>
+      <nav class="main-nav" aria-label="主导航">
+        <a class="nav-link" data-nav="home" href="index.html">首页</a>
+        <a class="nav-link" data-nav="monitor" href="monitor.html">监控中心</a>
+        <a class="nav-link" data-nav="services" href="services.html">守护服务</a>
+        <a class="nav-link" data-nav="cooperation" href="cooperation.html">合作共建</a>
+        <a class="nav-link" data-nav="profit" href="profit.html">盈利模式</a>
+        <a class="nav-link" data-nav="innovation" href="innovation.html">创新亮点</a>
+      </nav>
+      <a class="btn btn-primary btn-sm header-cta" href="monitor.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+        进入子女端
+      </a>
+      <button class="nav-toggle" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="container">
+        <p class="eyebrow">子女端监控中心</p>
+        <h1>为长辈守好每一度电</h1>
+        <p class="page-desc">实时掌握家中用电状态，异常发生时第一时间收到提醒；从负荷曲线到老人居家活跃度，让牵挂有数可依。</p>
+        <div class="family-select" id="family-chips" style="margin-top:24px"></div>
+        <div class="page-stats">
+          <div class="metric-card" style="--metric-color:#3fe0ff">
+            <div class="metric-label">当前总功率</div>
+            <div class="metric-value" id="stat-power">2.61<small>kW</small></div>
+            <div class="metric-trend" id="stat-power-trend">较昨日同时段 +0.3 kW</div>
+          </div>
+          <div class="metric-card" style="--metric-color:#46e0a4">
+            <div class="metric-label">电压 / 电流</div>
+            <div class="metric-value" id="stat-voltage">226.4<small>V</small></div>
+            <div class="metric-trend" id="stat-current">电流 11.5 A</div>
+          </div>
+          <div class="metric-card" style="--metric-color:#ffc26b">
+            <div class="metric-label">老人居家活跃度</div>
+            <div class="metric-value" id="stat-activity">76<small>%</small></div>
+            <div class="metric-trend" id="stat-activity-trend">客厅活动较为频繁</div>
+          </div>
+          <div class="metric-card" style="--metric-color:#ff5c7a">
+            <div class="metric-label">今日预警</div>
+            <div class="metric-value" id="stat-alerts">3<small>次</small></div>
+            <div class="metric-trend" id="stat-alerts-trend">高危 1 次已处置</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:52px">
+      <div class="container">
+        <div class="overview-grid">
+          <div class="panel chart-panel wide">
+            <div class="chart-head">
+              <div>
+                <div class="panel-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                  今日用电负荷
+                </div>
+                <div class="panel-sub">每 10 分钟一个采样点，共 144 点，数据为随机模拟</div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="dot" style="color:#3fe0ff;background:#3fe0ff"></span>总功率 kW</span>
+                <span class="legend-item"><span class="dot" style="color:#ffc26b;background:#ffc26b"></span>预警阈值</span>
+                <span class="badge badge-green"><span class="live-dot"></span>实时监测</span>
+              </div>
+            </div>
+            <div class="chart-wrap" id="monitor-power-chart"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+              老人居家活跃度
+            </div>
+            <div class="chart-wrap" id="monitor-activity-chart"></div>
+            <div class="status-list" style="margin-top:10px">
+              <div class="status-item">
+                <span class="status-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10.5 12 3l9 7.5"/>
+                    <path d="M5 9.5V21h14V9.5"/>
+                  </svg>
+                </span>
+                <span class="status-name">客厅活动</span>
+                <span class="badge badge-green">活跃</span>
+              </div>
+              <div class="status-item">
+                <span class="status-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3c2.5 0 3.5 2 3.5 4.5S12 13 12 13s-3.5-2.5-3.5-5.5S9.5 3 12 3z"/>
+                    <path d="M12 13v8"/>
+                  </svg>
+                </span>
+                <span class="status-name">睡眠作息</span>
+                <span class="badge badge-amber">规律</span>
+              </div>
+              <div class="status-item">
+                <span class="status-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                </span>
+                <span class="status-name">厨房用电</span>
+                <span class="badge badge-amber">需关注</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="chart-head">
+              <div>
+                <div class="panel-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 15 8.5 9.5"/>
+                    <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
+                  </svg>
+                  电压与电流
+                </div>
+                <div class="panel-sub">左轴电压 V，右轴电流 A</div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="dot" style="color:#3fe0ff;background:#3fe0ff"></span>电压</span>
+                <span class="legend-item"><span class="dot" style="color:#9d8cff;background:#9d8cff"></span>电流</span>
+              </div>
+            </div>
+            <div class="chart-wrap" id="monitor-voltage-chart"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+              </svg>
+              今日预警类型
+            </div>
+            <div class="donut" id="monitor-donut"></div>
+            <div class="legend-list">
+              <div class="legend-row"><span class="dot" style="background:#ff5c7a"></span><span class="name">过载风险</span><span class="num" id="donut-overload">1 次</span></div>
+              <div class="legend-row"><span class="dot" style="background:#ffc26b"></span><span class="name">深夜异常用电</span><span class="num" id="donut-night">1 次</span></div>
+              <div class="legend-row"><span class="dot" style="background:#9d8cff"></span><span class="name">长时间大功率</span><span class="num" id="donut-power">1 次</span></div>
+              <div class="legend-row"><span class="dot" style="background:#3fe0ff"></span><span class="name">电压波动</span><span class="num" id="donut-voltage">0 次</span></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2v6h6M9 13h6M9 17h6"/>
+              </svg>
+              异常提醒
+            </div>
+            <div class="filter-tabs" id="alert-filters">
+              <button class="filter-tab active" data-filter="all">全部</button>
+              <button class="filter-tab" data-filter="overload">过载</button>
+              <button class="filter-tab" data-filter="leakage">漏电</button>
+              <button class="filter-tab" data-filter="night">深夜异常</button>
+              <button class="filter-tab" data-filter="power">大功率</button>
+            </div>
+            <div id="alert-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                <rect x="9" y="9" width="6" height="6"/>
+                <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/>
+              </svg>
+              设备状态
+            </div>
+            <div id="device-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+              服务工单
+            </div>
+            <div class="ticket-box" style="margin-top:12px">
+              <h3 id="ticket-title">检测到 1 项待处理风险</h3>
+              <p id="ticket-desc">建议预约上门用电安全检查，完成线路与漏电保护复查。</p>
+              <a class="btn btn-warn btn-sm" href="services.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                一键预约上门检查
+              </a>
+            </div>
+            <div class="status-list" style="margin-top:12px">
+              <div class="status-item">
+                <span class="badge badge-amber">进行中</span>
+                <span class="status-name">漏电保护器复查</span>
+                <span class="status-meta">明日 10:30</span>
+              </div>
+              <div class="status-item">
+                <span class="badge badge-green">已完成</span>
+                <span class="status-name">智能终端巡检</span>
+                <span class="status-meta">上周日</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 10.5 12 3l9 7.5"/>
+                <path d="M5 9.5V21h14V9.5"/>
+              </svg>
+              家庭档案
+            </div>
+            <div id="family-profile"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="logo" href="index.html">
+            <span class="logo-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </span>
+            <span>
+              <span class="logo-name">银龄电盾</span>
+              <span class="logo-sub">Silver Shield Power</span>
+            </span>
+          </a>
+          <p>面向老年家庭的用电安全守护服务平台，用数字技术守护长辈的每一度电。</p>
+        </div>
+        <div class="footer-col">
+          <h4>平台导航</h4>
+          <a href="index.html">平台首页</a>
+          <a href="monitor.html">子女端监控中心</a>
+          <a href="services.html">守护服务</a>
+          <a href="cooperation.html">合作共建</a>
+          <a href="profit.html">盈利模式</a>
+          <a href="innovation.html">创新亮点</a>
+        </div>
+        <div class="footer-col">
+          <h4>联系与合作</h4>
+          <a href="cooperation.html">社区合作申请</a>
+          <a href="services.html">服务预约</a>
+          <a href="innovation.html">项目介绍</a>
+          <a href="mailto:hello@yilingdian.com">hello@yilingdian.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>银龄电盾 · 全国大学生创新大赛演示项目</span>
+        <span>本网站数据均为随机模拟，仅用于大赛答辩展示</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/monitor.js"></script>
+</body>
+</html>

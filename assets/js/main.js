@@ -196,6 +196,15 @@
       return m * 1.15;
     }
 
+    yMin() {
+      const src = this.targetSeries && this.targetSeries.length ? this.targetSeries : this.series;
+      let m = 0;
+      src.forEach((s) => {
+        if (s.values && s.values.length) m = Math.min(m, Math.min.apply(null, s.values));
+      });
+      return m < 0 ? m * 1.15 : 0;
+    }
+
     rightYMax() {
       const src = this.targetRight && this.targetRight.length ? this.targetRight : this.rightSeries;
       let m = 1;
@@ -210,8 +219,9 @@
       return this.pad.left + (i / n) * this.innerW();
     }
 
-    yAt(v, max) {
-      return this.pad.top + (1 - v / max) * this.innerH();
+    yAt(v, max, min) {
+      const mn = min == null ? 0 : min;
+      return this.pad.top + (1 - (v - mn) / (max - mn)) * this.innerH();
     }
 
     rebuild() {
@@ -334,13 +344,14 @@
       const src = this.targetSeries && this.targetSeries.length ? this.targetSeries : this.series;
       if (!src.length) return;
       const ymax = this.yMax();
+      const ymin = this.yMin();
       const rmax = this.rightYMax();
       const gridN = this.opts.gridY || 4;
       const decimals = this.opts.decimals == null ? 1 : this.opts.decimals;
 
       for (let i = 0; i <= gridN; i++) {
         const y = this.pad.top + (this.innerH() * i) / gridN;
-        const v = ymax * (1 - i / gridN);
+        const v = ymin + (ymax - ymin) * (1 - i / gridN);
         const line = document.createElementNS(this.ns, "line");
         line.setAttribute("x1", this.pad.left);
         line.setAttribute("y1", y);
@@ -374,22 +385,31 @@
 
       const n = src[0].values.length;
       const labelEvery = Math.max(1, Math.round(n / 7));
-      this.labels.forEach((label, i) => {
-        if (i % labelEvery !== 0 && i !== n - 1) return;
+      const labelIdx = [];
+      for (let i = 0; i < n; i += labelEvery) labelIdx.push(i);
+      const lastDrawn = labelIdx[labelIdx.length - 1];
+      const pxPerStep = this.innerW() / Math.max(1, n - 1);
+      if (n - 1 > lastDrawn && (n - 1 - lastDrawn) * pxPerStep >= 38) labelIdx.push(n - 1);
+      labelIdx.forEach((i) => {
+        const label = this.labels[i];
+        if (label == null) return;
+        const x = this.xAt(i);
 
         const vline = document.createElementNS(this.ns, "line");
-        vline.setAttribute("x1", this.xAt(i));
+        vline.setAttribute("x1", x);
         vline.setAttribute("y1", this.pad.top);
-        vline.setAttribute("x2", this.xAt(i));
+        vline.setAttribute("x2", x);
         vline.setAttribute("y2", this.pad.top + this.innerH());
         vline.setAttribute("stroke", "rgba(139,190,214,0.05)");
         vline.setAttribute("stroke-width", "1");
         this.gridG.appendChild(vline);
 
         const txt = document.createElementNS(this.ns, "text");
-        txt.setAttribute("x", this.xAt(i));
+        const anchor = i === 0 ? "start" : i === n - 1 ? "end" : "middle";
+        const tx = i === 0 ? this.pad.left + 2 : i === n - 1 ? this.width - this.pad.right - 2 : x;
+        txt.setAttribute("x", tx);
         txt.setAttribute("y", this.height - 8);
-        txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("text-anchor", anchor);
         txt.setAttribute("fill", "#6d818e");
         txt.setAttribute("font-size", "10.5");
         txt.textContent = label;
@@ -400,19 +420,20 @@
     paint() {
       if (!this.nodes.length) return;
       const ymax = this.yMax();
+      const ymin = this.yMin();
       const rmax = this.rightYMax();
       let idx = 0;
       this.series.forEach((s) => {
-        this.paintSeries(s, ymax, this.nodes[idx++]);
+        this.paintSeries(s, ymax, ymin, this.nodes[idx++]);
       });
       this.rightSeries.forEach((s) => {
-        this.paintSeries(s, rmax, this.nodes[idx++]);
+        this.paintSeries(s, rmax, 0, this.nodes[idx++]);
       });
     }
 
-    paintSeries(s, max, node) {
+    paintSeries(s, max, min, node) {
       if (!s.values || !s.values.length || !node) return;
-      const pts = s.values.map((v, i) => [this.xAt(i), this.yAt(v, max)]);
+      const pts = s.values.map((v, i) => [this.xAt(i), this.yAt(v, max, min)]);
       const d = this.smoothPath(pts);
       node.line.setAttribute("d", d);
       node.glow1.setAttribute("d", d);
@@ -420,7 +441,7 @@
       node.flow.setAttribute("d", d);
 
       if (node.area) {
-        const baseline = this.pad.top + this.innerH();
+        const baseline = this.yAt(Math.max(0, min), max, min);
         const areaD =
           "M " +
           this.pad.left +
@@ -548,6 +569,7 @@
       const rect = this.el.getBoundingClientRect();
       const x = this.xAt(i);
       const ymax = this.yMax();
+      const ymin = this.yMin();
       const rmax = this.rightYMax();
       this.tipG.innerHTML = "";
 
@@ -563,7 +585,7 @@
       let html = "<div>" + (this.labels[i] || "") + "</div>";
       this.series.forEach((s) => {
         const dotX = this.xAt(i);
-        const dotY = this.yAt(s.values[i], ymax);
+        const dotY = this.yAt(s.values[i], ymax, ymin);
         const c = document.createElementNS(this.ns, "circle");
         c.setAttribute("cx", dotX);
         c.setAttribute("cy", dotY);
@@ -574,7 +596,7 @@
       });
       this.rightSeries.forEach((s) => {
         const dotX = this.xAt(i);
-        const dotY = this.yAt(s.values[i], rmax);
+        const dotY = this.yAt(s.values[i], rmax, 0);
         const c = document.createElementNS(this.ns, "circle");
         c.setAttribute("cx", dotX);
         c.setAttribute("cy", dotY);

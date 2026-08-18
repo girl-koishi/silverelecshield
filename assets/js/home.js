@@ -74,9 +74,11 @@
 
     setInterval(() => {
       power.shift();
-      power.push(App.walk(power[power.length - 1], 0.38, 0.35, 5.6));
+      let np = App.walk(power[power.length - 1], 0.55, 0.35, 5.6) + Math.sin(Date.now() / 2200) * 0.42;
+      power.push(Number(Math.max(0.35, Math.min(5.6, np)).toFixed(2)));
       activity.shift();
-      activity.push(App.walk(activity[activity.length - 1], 6, 26, 96));
+      let na = App.walk(activity[activity.length - 1], 9, 26, 96) + Math.sin(Date.now() / 1800) * 7;
+      activity.push(Math.max(26, Math.min(96, Math.round(na))));
       labels.shift();
       labels.push(nowLabel());
 
@@ -93,7 +95,7 @@
         tickerIndex = (tickerIndex + 1) % tickers.length;
         tickerEl.textContent = tickers[tickerIndex];
       }
-    }, 2600);
+    }, 1300);
   }
 
   function initOverview() {
@@ -175,7 +177,7 @@
       pad: { top: 18, right: 18, bottom: 30, left: 48 },
       gridY: 4,
       decimals: 0,
-      ariaLabel: "年度收入增长模拟曲线",
+      ariaLabel: "年度收入增长曲线",
     });
     chart.setData(
       [

@@ -384,11 +384,18 @@
   function startLive() {
     setInterval(() => {
       const last = powerValues.length - 1;
-      let p = App.walk(powerValues[last], 0.22, 0.35, current.base + 2.8);
-      if (Math.random() < 0.06) p = Math.min(6.2, p + App.rnd(0.6, 1.5));
-      powerValues[last] = p;
-      voltageValues[last] = App.walk(voltageValues[last], 2, 217, 236);
-      activityValues[last] = Math.round(App.walk(activityValues[last], 4, 22, 96));
+      let p =
+        App.walk(powerValues[last], 0.42, 0.35, current.base + 2.8) +
+        Math.sin(Date.now() / 2100) * 0.3;
+      if (Math.random() < 0.14) p = Math.min(6.2, p + App.rnd(0.9, 2.1));
+      powerValues[last] = Number(Math.max(0.35, Math.min(6.2, p)).toFixed(2));
+      voltageValues[last] = Number(
+        Math.max(217, Math.min(236, App.walk(voltageValues[last], 2.8, 217, 236) + Math.sin(Date.now() / 1900) * 1.3)).toFixed(1)
+      );
+      activityValues[last] = Math.max(
+        22,
+        Math.min(96, Math.round(App.walk(activityValues[last], 7, 22, 96) + Math.sin(Date.now() / 1700) * 5))
+      );
 
       drawCharts();
       updateStats();
@@ -416,7 +423,7 @@
         renderTicket();
         renderDonut();
       }
-    }, 2600);
+    }, 1300);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
